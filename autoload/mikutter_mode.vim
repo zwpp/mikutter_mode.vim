@@ -8,12 +8,13 @@ function! mikutter_mode#onthefly_excuter_current_buffer()
       call s:onthefly_excuter('Plugin.uninstall(:' . current_plugin . ')')
   endif
 
-  let code = substitute(join(lines, "\n"), '"', '\\"', 'g')
+  let code = join(lines, "\n")
   call s:onthefly_excuter(code)
 endfunction
 
 function! s:onthefly_excuter(code)
-  call system('ruby ' . s:rbfile . '"' . a:code . '"')
+  let command = 'ruby' . s:rbfile . shellescape(a:code)
+  call system(command)
 endfunction
 
 function! s:current_plugin(lines)
