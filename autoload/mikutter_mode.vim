@@ -11,6 +11,11 @@ function! mikutter_mode#onthefly_excuter_current_buffer()
 endfunction
 
 function! s:onthefly_excuter(code)
+  if !(has("ruby"))
+    echomsg 'this requires Ruby support'
+    return
+  endif
+
   ruby << EOF
   require 'dbus'
 
