@@ -1,5 +1,3 @@
-let s:rbfile = " " . expand('<sfile>:p:h') . "/mikutter_mode.rb "
-
 function! mikutter_mode#onthefly_excuter_current_buffer()
   let lines = getline(0, line("$"))
 
@@ -13,8 +11,19 @@ function! mikutter_mode#onthefly_excuter_current_buffer()
 endfunction
 
 function! s:onthefly_excuter(code)
-  let command = 'ruby' . s:rbfile . shellescape(a:code)
-  call system(command)
+  ruby << EOF
+  require 'dbus'
+
+  bus = DBus::SessionBus.instance
+  mikutter_service = bus.service("org.mikutter.dynamic")
+  client_to_mikutter = mikutter_service.object("/org/mikutter/MyInstance")
+  client_to_mikutter.introspect
+  eval_ruby = client_to_mikutter["org.mikutter.eval"]
+
+  code = Vim::evaluate "a:code"
+  eval_ruby.ruby([["code", code],["file", ""]])
+EOF
+
 endfunction
 
 function! s:current_plugin(lines)
